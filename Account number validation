@@ -1,0 +1,29 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ACCTVAL.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-ACCOUNT PIC X(10).
+       01 WS-I PIC 99.
+       01 WS-VALID PIC X VALUE 'Y'.
+
+       PROCEDURE DIVISION.
+           DISPLAY "ENTER ACCOUNT NUMBER: "
+           ACCEPT WS-ACCOUNT
+
+           PERFORM VARYING WS-I FROM 1 BY 1
+               UNTIL WS-I > 10
+               IF WS-ACCOUNT(WS-I:1) < '0'
+                   OR WS-ACCOUNT(WS-I:1) > '9'
+                   MOVE 'N' TO WS-VALID
+               END-IF
+           END-PERFORM
+
+           IF WS-VALID = 'Y'
+               DISPLAY "VALID"
+           ELSE
+               DISPLAY "INVALID"
+           END-IF
+
+           STOP RUN.
+
