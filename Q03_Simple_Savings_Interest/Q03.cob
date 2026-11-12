@@ -1,0 +1,71 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. Q03.
+      *> QUESTION 3: SIMPLE SAVINGS INTEREST
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT INPUT-FILE ASSIGN TO "input.txt"
+               ORGANIZATION IS LINE SEQUENTIAL
+               FILE STATUS IS WS-FILE-STATUS.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  INPUT-FILE.
+       01  FD-INPUT-RECORD   PIC X(100).
+       WORKING-STORAGE SECTION.
+       01 WS-FILE-STATUS     PIC XX.
+       01 WS-FILE-OPENED     PIC 9 VALUE 0.
+       01 WS-INPUT-LINE      PIC X(50).
+       01 WS-PRINCIPAL       PIC S9(10)V99 VALUE 0.
+       01 WS-RATE            PIC S9(5)V99 VALUE 0.
+       01 WS-YEARS           PIC S9(5)V99 VALUE 0.
+       01 WS-INTEREST        PIC 9(10)V99 VALUE 0.
+       01 WS-TOTAL           PIC 9(10)V99 VALUE 0.
+       01 WS-DISP-INT        PIC Z(9)9.99.
+       01 WS-DISP-TOT        PIC Z(9)9.99.
+       PROCEDURE DIVISION.
+       0000-MAIN.
+           OPEN INPUT INPUT-FILE
+           IF WS-FILE-STATUS = "00"
+               MOVE 1 TO WS-FILE-OPENED
+           ELSE
+               MOVE 0 TO WS-FILE-OPENED
+           END-IF
+
+           PERFORM READ-LINE
+           COMPUTE WS-PRINCIPAL = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           PERFORM READ-LINE
+           COMPUTE WS-RATE = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           PERFORM READ-LINE
+           COMPUTE WS-YEARS = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           IF WS-PRINCIPAL < 0 OR WS-RATE < 0 OR WS-YEARS < 0
+               DISPLAY "INVALID INPUT"
+           ELSE
+               COMPUTE WS-INTEREST ROUNDED =
+                   (WS-PRINCIPAL * WS-RATE * WS-YEARS) / 100
+               COMPUTE WS-TOTAL = WS-PRINCIPAL + WS-INTEREST
+
+               MOVE WS-INTEREST TO WS-DISP-INT
+               MOVE WS-TOTAL TO WS-DISP-TOT
+
+               DISPLAY "Interest: " FUNCTION TRIM(WS-DISP-INT)
+               DISPLAY "Total: " FUNCTION TRIM(WS-DISP-TOT)
+           END-IF
+
+           IF WS-FILE-OPENED = 1
+               CLOSE INPUT-FILE
+           END-IF
+
+           STOP RUN.
+
+       READ-LINE.
+           IF WS-FILE-OPENED = 1
+               READ INPUT-FILE INTO WS-INPUT-LINE
+                   AT END
+                       MOVE SPACES TO WS-INPUT-LINE
+               END-READ
+           ELSE
+               ACCEPT WS-INPUT-LINE
+           END-IF.

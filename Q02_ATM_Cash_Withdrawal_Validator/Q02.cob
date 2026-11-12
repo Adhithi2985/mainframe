@@ -1,0 +1,71 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. Q02.
+      *> QUESTION 2: ATM CASH WITHDRAWAL VALIDATOR
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT INPUT-FILE ASSIGN TO "input.txt"
+               ORGANIZATION IS LINE SEQUENTIAL
+               FILE STATUS IS WS-FILE-STATUS.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  INPUT-FILE.
+       01  FD-INPUT-RECORD   PIC X(100).
+       WORKING-STORAGE SECTION.
+       01 WS-FILE-STATUS     PIC XX.
+       01 WS-FILE-OPENED     PIC 9 VALUE 0.
+       01 WS-INPUT-LINE      PIC X(50).
+       01 WS-BALANCE         PIC S9(10) VALUE 0.
+       01 WS-WITHDRAWAL      PIC S9(10) VALUE 0.
+       01 WS-REMAINING       PIC S9(10) VALUE 0.
+       01 WS-QUOTIENT        PIC 9(10) VALUE 0.
+       01 WS-REM             PIC 9(10) VALUE 0.
+       01 WS-DISP-BAL        PIC Z(9)9.
+       PROCEDURE DIVISION.
+       0000-MAIN.
+           OPEN INPUT INPUT-FILE
+           IF WS-FILE-STATUS = "00"
+               MOVE 1 TO WS-FILE-OPENED
+           ELSE
+               MOVE 0 TO WS-FILE-OPENED
+           END-IF
+
+           PERFORM READ-LINE
+           COMPUTE WS-BALANCE = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           PERFORM READ-LINE
+           COMPUTE WS-WITHDRAWAL = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           IF WS-WITHDRAWAL <= 0
+               DISPLAY "INVALID AMOUNT"
+           ELSE
+               DIVIDE WS-WITHDRAWAL BY 100 GIVING WS-QUOTIENT
+                   REMAINDER WS-REM
+               IF WS-REM NOT = 0
+                   DISPLAY "DENOMINATION ERROR"
+               ELSE
+                   IF WS-WITHDRAWAL > WS-BALANCE
+                       DISPLAY "INSUFFICIENT FUNDS"
+                   ELSE
+                       COMPUTE WS-REMAINING = WS-BALANCE - WS-WITHDRAWAL
+                       MOVE WS-REMAINING TO WS-DISP-BAL
+                       DISPLAY FUNCTION TRIM(WS-DISP-BAL)
+                   END-IF
+               END-IF
+           END-IF
+
+           IF WS-FILE-OPENED = 1
+               CLOSE INPUT-FILE
+           END-IF
+
+           STOP RUN.
+
+       READ-LINE.
+           IF WS-FILE-OPENED = 1
+               READ INPUT-FILE INTO WS-INPUT-LINE
+                   AT END
+                       MOVE SPACES TO WS-INPUT-LINE
+               END-READ
+           ELSE
+               ACCEPT WS-INPUT-LINE
+           END-IF.
