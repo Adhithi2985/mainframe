@@ -1,0 +1,58 @@
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. MERGEPGM.
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+
+           SELECT REGION-A-FILE
+               ASSIGN TO "REGION-A-FILE.txt"
+               ORGANIZATION IS LINE SEQUENTIAL.
+
+           SELECT REGION-B-FILE
+               ASSIGN TO "REGION-B-FILE.txt"
+               ORGANIZATION IS LINE SEQUENTIAL.
+
+           SELECT CONSOLIDATED-FILE
+               ASSIGN TO "CONSOLIDATED-FILE.txt"
+               ORGANIZATION IS LINE SEQUENTIAL.
+
+           SELECT MERGE-WORK-FILE
+               ASSIGN TO DISK.
+
+       DATA DIVISION.
+       FILE SECTION.
+
+       FD REGION-A-FILE.
+       01 REGION-A-REC.
+          05 A-ROUTING PIC X(04).
+          05 A-CHECK PIC X(06).
+
+       FD REGION-B-FILE.
+       01 REGION-B-REC.
+          05 B-ROUTING PIC X(04).
+          05 B-CHECK PIC X(06).
+
+       FD CONSOLIDATED-FILE.
+       01 OUTPUT-REC PIC X(10).
+
+       SD MERGE-WORK-FILE.
+       01 MERGE-REC.
+          05 MRG-ROUTING PIC X(04).
+          05 MRG-CHECK PIC X(06).
+
+       PROCEDURE DIVISION.
+
+           MERGE MERGE-WORK-FILE
+               ON ASCENDING KEY
+                   MRG-ROUTING
+                   MRG-CHECK
+               USING REGION-A-FILE
+                     REGION-B-FILE
+               GIVING CONSOLIDATED-FILE.
+
+           DISPLAY "MERGE COMPLETED SUCCESSFULLY".
+
+           STOP RUN.
+
