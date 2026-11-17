@@ -1,0 +1,60 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. Q08.
+      *> QUESTION 8: MONTHLY LOAN REPAYMENT ESTIMATE
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT INPUT-FILE ASSIGN TO "input.txt"
+               ORGANIZATION IS LINE SEQUENTIAL
+               FILE STATUS IS WS-FILE-STATUS.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  INPUT-FILE.
+       01  FD-INPUT-RECORD   PIC X(100).
+       WORKING-STORAGE SECTION.
+       01 WS-FILE-STATUS     PIC XX.
+       01 WS-FILE-OPENED     PIC 9 VALUE 0.
+       01 WS-INPUT-LINE      PIC X(50).
+       01 WS-PRINCIPAL       PIC S9(10)V99 VALUE 0.
+       01 WS-MONTHS          PIC S9(5) VALUE 0.
+       01 WS-MONTHLY-REPAY   PIC 9(10)V99 VALUE 0.
+       01 WS-DISP-REPAY      PIC Z(9)9.99.
+       PROCEDURE DIVISION.
+       0000-MAIN.
+           OPEN INPUT INPUT-FILE
+           IF WS-FILE-STATUS = "00"
+               MOVE 1 TO WS-FILE-OPENED
+           ELSE
+               MOVE 0 TO WS-FILE-OPENED
+           END-IF
+
+           PERFORM READ-LINE
+           COMPUTE WS-PRINCIPAL = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           PERFORM READ-LINE
+           COMPUTE WS-MONTHS = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           IF WS-MONTHS <= 0 OR WS-PRINCIPAL < 0
+               DISPLAY "INVALID INPUT"
+           ELSE
+               COMPUTE WS-MONTHLY-REPAY ROUNDED =
+                   WS-PRINCIPAL / WS-MONTHS
+               MOVE WS-MONTHLY-REPAY TO WS-DISP-REPAY
+               DISPLAY FUNCTION TRIM(WS-DISP-REPAY)
+           END-IF
+
+           IF WS-FILE-OPENED = 1
+               CLOSE INPUT-FILE
+           END-IF
+
+           STOP RUN.
+
+       READ-LINE.
+           IF WS-FILE-OPENED = 1
+               READ INPUT-FILE INTO WS-INPUT-LINE
+                   AT END
+                       MOVE SPACES TO WS-INPUT-LINE
+               END-READ
+           ELSE
+               ACCEPT WS-INPUT-LINE
+           END-IF.
