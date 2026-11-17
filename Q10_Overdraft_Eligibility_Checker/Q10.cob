@@ -1,0 +1,66 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. Q10.
+      *> QUESTION 10: OVERDRAFT ELIGIBILITY CHECKER
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT INPUT-FILE ASSIGN TO "input.txt"
+               ORGANIZATION IS LINE SEQUENTIAL
+               FILE STATUS IS WS-FILE-STATUS.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  INPUT-FILE.
+       01  FD-INPUT-RECORD   PIC X(100).
+       WORKING-STORAGE SECTION.
+       01 WS-FILE-STATUS     PIC XX.
+       01 WS-FILE-OPENED     PIC 9 VALUE 0.
+       01 WS-INPUT-LINE      PIC X(50).
+       01 WS-SALARY          PIC S9(10)V99 VALUE 0.
+       01 WS-DEBT            PIC S9(10)V99 VALUE 0.
+       01 WS-LIMIT           PIC S9(10)V99 VALUE 0.
+       01 WS-MAX-DEBT        PIC 9(10)V99 VALUE 0.
+       01 WS-MAX-LIMIT       PIC 9(10)V99 VALUE 0.
+       PROCEDURE DIVISION.
+       0000-MAIN.
+           OPEN INPUT INPUT-FILE
+           IF WS-FILE-STATUS = "00"
+               MOVE 1 TO WS-FILE-OPENED
+           ELSE
+               MOVE 0 TO WS-FILE-OPENED
+           END-IF
+
+           PERFORM READ-LINE
+           COMPUTE WS-SALARY = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           PERFORM READ-LINE
+           COMPUTE WS-DEBT = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           PERFORM READ-LINE
+           COMPUTE WS-LIMIT = FUNCTION NUMVAL(WS-INPUT-LINE)
+
+           COMPUTE WS-MAX-DEBT = WS-SALARY * 0.40
+           COMPUTE WS-MAX-LIMIT = WS-SALARY * 2
+
+           IF WS-SALARY > 0 AND
+              WS-DEBT <= WS-MAX-DEBT AND
+              WS-LIMIT <= WS-MAX-LIMIT
+               DISPLAY "ELIGIBLE"
+           ELSE
+               DISPLAY "NOT ELIGIBLE"
+           END-IF
+
+           IF WS-FILE-OPENED = 1
+               CLOSE INPUT-FILE
+           END-IF
+
+           STOP RUN.
+
+       READ-LINE.
+           IF WS-FILE-OPENED = 1
+               READ INPUT-FILE INTO WS-INPUT-LINE
+                   AT END
+                       MOVE SPACES TO WS-INPUT-LINE
+               END-READ
+           ELSE
+               ACCEPT WS-INPUT-LINE
+           END-IF.
